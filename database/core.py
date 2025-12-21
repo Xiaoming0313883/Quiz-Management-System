@@ -1,5 +1,4 @@
-from dotenv import load_dotenv
-import os
+from config_env import env_vars
 import mysql.connector
 from database.manager import userManager
 from asset.timeCount import TimeCount
@@ -7,11 +6,10 @@ from asset.timeCount import TimeCount
 class core:
 
     def __init__(self):
-        load_dotenv()
-        host = os.getenv("DB_HOST")
-        user = os.getenv("DB_USER")
-        password = os.getenv("DB_PASSWORD")
-        port = os.getenv("DB_PORT")
+        host = env_vars.get("DB_HOST")
+        user = env_vars.get("DB_USER")
+        password = env_vars.get("DB_PASSWORD")
+        port = env_vars.get("DB_PORT")
         try:
             self.db_connection = mysql.connector.connect(
                 host=host,
