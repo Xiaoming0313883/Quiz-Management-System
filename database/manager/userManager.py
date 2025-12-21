@@ -45,6 +45,17 @@ def getUserRole(dbase: core.core, user_id: int):
         print(err)
     return False
 
+def getUseridByUsername(dbase: core.core, username):
+    try:
+        cursor = dbase.db_connection.cursor()
+        cursor.execute(f"SELECT user_id FROM quiz.users WHERE username = '%s'" % (username,))
+        data = cursor.fetchone()
+        if data:
+            return data[0]
+    except mysql.connector.Error as err:
+        print(err)
+    return False
+
 def verify_user(dbase: core.core, username, password):
     cursor = dbase.db_connection.cursor()
     try:

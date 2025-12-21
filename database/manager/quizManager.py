@@ -98,16 +98,31 @@ def viewQuiz(database: core,userid):
     if quiz_id:
         displayQuizInfo(database, quiz_id,data)
         listLeaderboard(database)
+        viewStudent = input("Did you want to view student's answer? (y/n): ")
+        if viewStudent.lower() == "y":
+            username = input("Enter student username: ")
+            user_id = userManager.getUseridByUsername(database, username)
+            if user_id:
+                status, attempt_id = getUserAnsweredQuiz(database, user_id, quiz_id)
+                if status:
+                    displayUserAnsweredQuiz(database, user_id, quiz_id)
+                else:
+                    print("The user didn't answer this quiz yet!")
+            else:
+                print("User not found!")
         input("Press any key to go back...")
     dashboard.teacher_dashboard(database, userid)
 
 def listLeaderboard(database: core):
-    cursor = database.db_connection.cursor()
-    cursor.execute(f"SELECT u.full_name, a.start_time, a.end_time, a.time_used, a.score FROM quiz.users u INNER JOIN quiz.attempts a WHERE a.user_id = u.user_id ORDER BY a.start_time DESC;")
-    data = cursor.fetchall()
-    header = ["Full Name", "Start Time", "End Time", "Time Used", "Score"]
-    print("Leaderboard:")
-    print(tabulate(data, headers=header, tablefmt="grid"),"\n")
+    try:
+        cursor = database.db_connection.cursor()
+        cursor.execute(f"SELECT u.full_name, u.username, a.start_time, a.end_time, a.time_used, a.score FROM quiz.users u INNER JOIN quiz.attempts a WHERE a.user_id = u.user_id ORDER BY a.start_time DESC;")
+        data = cursor.fetchall()
+        header = ["Full Name", "Username", "Start Time", "End Time", "Time Used", "Score"]
+        print("Leaderboard:")
+        print(tabulate(data, headers=header, tablefmt="grid"),"\n")
+    except mysql.connector.Error:
+        print("Something went wrong, please try again!")
 
 def displayQuizHeaderInfo(database: core,quiz_id,data):
     quiz_title = data[0]
@@ -261,6 +276,67 @@ def getAllAnsweredQuiz(database: core, userid):
     except mysql.connector.Error:
         print("Something went wrong")
 
+
+def displayUserAnsweredQuiz(database: core, userid,attempt_id):
+    cursor = database.db_connection.cursor()
+    cursor.execute(f"""
+        SELECT
+            q.title,
+            u.full_name,
+            a.start_time,
+            a.end_time,
+            a.time_used,
+            a.score
+        FROM attempts a
+        JOIN quizzes q ON a.quiz_id = q.quiz_id
+        JOIN users u ON q.created_by = u.user_id
+        WHERE a.attempt_id = '{attempt_id}';
+    """)
+    data = list(cursor.fetchone())
+    data[2] = data[2].strftime("%Y-%m-%d %H:%M:%S")
+    data[3] = data[3].strftime("%Y-%m-%d %H:%M:%S")
+    data[4] = str(data[4])
+    data[5] = str(data[5])
+    status, full_name = userManager.getUsernameByID(database, userid)
+    print(f"Quiz information for user: {full_name}")
+    print("\nQuiz info: ")
+    header = ["Title", "Created By", "Start Time", "End Time", "Time Used (s)", "Score"]
+    print(tabulate([data], headers=header, tablefmt="grid"), "\n")
+
+    cursor.execute(f"""
+        SELECT
+            q.question_no,
+            q.question_text,
+            q.option_a,
+            q.option_b,
+            q.option_c,
+            q.option_d,
+            q.correct_option,
+            ans.selected_option,
+            ans.is_correct
+        FROM answers ans
+        JOIN questions q ON ans.question_id = q.question_no
+        WHERE ans.attempt_id = '{attempt_id}'
+        ORDER BY q.question_no;
+    """)
+    data = cursor.fetchall()
+    datas = []
+    for row in data:
+        datas.append([
+            row[0],
+            row[1],
+            row[2],
+            row[3],
+            row[4],
+            row[5],
+            row[6],
+            row[7],
+            "✔" if row[8] else "✘"
+        ])
+    print("Answer info: ")
+    header = ["No", "Question", "A", "B", "C", "D", "Correct Answer", "Your Answer", "Score"]
+    print(tabulate(datas, headers=header, tablefmt="grid"), "\n")
+
 def getUserAnsweredQuiz(database: core, userid, quizID):
     clear_console()
     try:
@@ -275,65 +351,10 @@ def getUserAnsweredQuiz(database: core, userid, quizID):
         data = cursor.fetchone()
         if data:
             attempt_id = data[0]
-            cursor.execute(f"""
-                    SELECT
-                        q.title,
-                        u.full_name,
-                        a.start_time,
-                        a.end_time,
-                        a.time_used,
-                        a.score
-                    FROM attempts a
-                    JOIN quizzes q ON a.quiz_id = q.quiz_id
-                    JOIN users u ON q.created_by = u.user_id
-                    WHERE a.attempt_id = '{attempt_id}';
-                """)
-            data = list(cursor.fetchone())
-            data[2] = data[2].strftime("%Y-%m-%d %H:%M:%S")
-            data[3] = data[3].strftime("%Y-%m-%d %H:%M:%S")
-            data[4] = str(data[4])
-            data[5] = str(data[5])
-            print("\nQuiz info: ")
-            header = ["Title", "Created By", "Start Time", "End Time", "Time Used (s)", "Score"]
-            print(tabulate([data], headers=header, tablefmt="grid"),"\n")
-
-            cursor.execute(f"""
-                    SELECT
-                        q.question_no,
-                        q.question_text,
-                        q.option_a,
-                        q.option_b,
-                        q.option_c,
-                        q.option_d,
-                        q.correct_option,
-                        ans.selected_option,
-                        ans.is_correct
-                    FROM answers ans
-                    JOIN questions q ON ans.question_id = q.question_no
-                    WHERE ans.attempt_id = '{attempt_id}'
-                    ORDER BY q.question_no;
-                """)
-            data = cursor.fetchall()
-            datas = []
-            for row in data:
-                datas.append([
-                    row[0],
-                    row[1],
-                    row[2],
-                    row[3],
-                    row[4],
-                    row[5],
-                    row[6],
-                    row[7],
-                    "✔" if row[8] else "✘"
-                ])
-            print("Your answer info: ")
-            header = ["No","Question", "A", "B", "C", "D", "Correct Answer", "Your Answer", "Score"]
-            print(tabulate(datas, headers=header, tablefmt="grid"), "\n")
-        else:
-            print("You didn't answer this quiz!")
+            return True, attempt_id
     except mysql.connector.Error:
         print("Something went wrong")
+    return False, None
 
 
 def UserGetAllAnsweredQuiz(database: core, userid):
@@ -342,10 +363,15 @@ def UserGetAllAnsweredQuiz(database: core, userid):
     dashboard.student_dashboard(database, userid)
 
 def UserViewAnsweredQuiz(database: core, userid):
+    getAllAnsweredQuiz(database, userid)
     quiz_id, data = checkQuizIdValid(database)
     if quiz_id:
-        getUserAnsweredQuiz(database, userid, quiz_id)
-        listLeaderboard(database)
+        status, attempt_id = getUserAnsweredQuiz(database, userid, quiz_id)
+        if status:
+            displayUserAnsweredQuiz(database, userid, attempt_id)
+            listLeaderboard(database)
+        else:
+            print("You didn't answer this quiz yet!")
     input("Press any key to go back...")
     dashboard.student_dashboard(database, userid)
 
