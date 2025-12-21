@@ -3,7 +3,7 @@ from tabulate import tabulate
 
 from database.core import core
 from database.manager import userManager
-from ui.dashboard import teacher_dashboard
+import ui.dashboard as dashboard
 
 
 def createUser(database: core, userid):
@@ -33,7 +33,7 @@ def createUser(database: core, userid):
             print("Failed to create a new user, please try again.")
 
     input("Press any key to continue...")
-    teacher_dashboard(database, userid)
+    dashboard.teacher_dashboard(database, userid)
 
 def deleteUser(database: core, userid):
     username = input("Please enter user's username: ")
@@ -55,7 +55,7 @@ def deleteUser(database: core, userid):
         print("Failed to delete a user, please try again.")
 
     input("Press any key to continue...")
-    teacher_dashboard(database, userid)
+    dashboard.teacher_dashboard(database, userid)
 
 def viewAllUsers(database: core, userid):
     cursor = database.db_connection.cursor()
@@ -77,7 +77,7 @@ def viewAllUsers(database: core, userid):
         print("Failed to view a user, please try again.")
 
     input("Press any key to go back...")
-    teacher_dashboard(database, userid)
+    dashboard.teacher_dashboard(database, userid)
 
 
 

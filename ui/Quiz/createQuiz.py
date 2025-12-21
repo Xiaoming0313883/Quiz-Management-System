@@ -1,6 +1,6 @@
 from database.core import core
 from database.manager.quizManager import createQuiz
-from ui.dashboard import teacher_dashboard
+import ui.dashboard as dashboard
 
 def create_quiz(database: core,user_id):
     while True:
@@ -36,4 +36,4 @@ def create_quiz(database: core,user_id):
     else:
         print("Quiz creation cancelled")
     input("Press any key to continue...")
-    teacher_dashboard(database, user_id)
+    dashboard.teacher_dashboard(database, user_id)

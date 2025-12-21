@@ -1,7 +1,7 @@
 from asset.useful import clear_console
 from database.core import core
 from database.manager import quizManager
-from ui.dashboard import teacher_dashboard
+import ui.dashboard as dashboard
 
 
 def manageQuiz(database: core, userid):
@@ -30,4 +30,4 @@ def manageQuiz(database: core, userid):
         case 4:
             quizManager.deleteQuiz(database, userid)
         case 5:
-            teacher_dashboard(database, userid)
+            dashboard.teacher_dashboard(database, userid)

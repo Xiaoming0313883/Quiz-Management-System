@@ -2,13 +2,13 @@ import hashlib
 from enum import Enum
 
 import mysql.connector
-from database.core import core
+import database.core as core
 
 class Role(Enum):
     teacher = "teacher"
     student = "student"
 
-def create_user(dbase: core, username, password, full_name, role: Role):
+def create_user(dbase: core.core, username, password, full_name, role: Role):
     dbase.db_connection.connect()
     cursor = dbase.db_connection.cursor()
     success = False
@@ -32,7 +32,7 @@ def create_user(dbase: core, username, password, full_name, role: Role):
         print("User creation failed. Please try again.")
 
 
-def getUserRole(dbase: core, user_id: int):
+def getUserRole(dbase: core.core, user_id: int):
     try:
         cursor = dbase.db_connection.cursor()
         cursor.execute(f"SELECT role FROM quiz.users WHERE user_id = {user_id}")
@@ -45,7 +45,7 @@ def getUserRole(dbase: core, user_id: int):
         print(err)
     return False
 
-def verify_user(dbase: core, username, password):
+def verify_user(dbase: core.core, username, password):
     cursor = dbase.db_connection.cursor()
     try:
         cursor.execute("SELECT user_id,full_name,role FROM quiz.users WHERE username = '%s' AND password_hash = '%s'" % (username, hash_password(password),))
@@ -58,7 +58,7 @@ def verify_user(dbase: core, username, password):
         print(err)
     return False, None
 
-def getUsernameByID(dbase: core, user_id: int):
+def getUsernameByID(dbase: core.core, user_id: int):
     cursor = dbase.db_connection.cursor()
     try:
         cursor.execute(f"SELECT full_name FROM quiz.users WHERE user_id = {user_id}")

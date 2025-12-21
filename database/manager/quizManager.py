@@ -3,7 +3,7 @@ import mysql.connector
 from tabulate import tabulate
 from asset.useful import clear_console
 from database.manager import userManager
-from ui.dashboard import teacher_dashboard, student_dashboard
+import ui.dashboard as dashboard
 
 def createQuiz(database: core, quiz_data):
     user_id = quiz_data["user_id"]
@@ -85,7 +85,7 @@ def listAllQuiz(database: core,userid):
         header = ["Quiz ID","Title","Description","Creator","Status", "Creation Date"]
         print(tabulate(datas, headers=header, tablefmt="grid"))
         input("Press any key to go back...")
-        teacher_dashboard(database,userid)
+        dashboard.teacher_dashboard(database,userid)
 
     except mysql.connector.Error as err:
         print(err)
@@ -97,7 +97,7 @@ def viewQuiz(database: core,userid):
         displayQuizInfo(database, quiz_id,data)
         listLeaderboard(database)
         input("Press any key to go back...")
-    teacher_dashboard(database, userid)
+    dashboard.teacher_dashboard(database, userid)
 
 def listLeaderboard(database: core):
     cursor = database.db_connection.cursor()
@@ -149,7 +149,7 @@ def deleteQuiz(database: core,userid):
         else:
             print("Action cancelled!")
         input("Press any key to go back...")
-    teacher_dashboard(database, userid)
+    dashboard.teacher_dashboard(database, userid)
 
 def setQuizStatus(database: core,userid):
     clear_console()
@@ -171,7 +171,7 @@ def setQuizStatus(database: core,userid):
             print("Invalid input, action cancelled!")
 
     input("Press any key to go back...")
-    teacher_dashboard(database, userid)
+    dashboard.teacher_dashboard(database, userid)
 
 def getQuiz(database: core,quizID):
     try:
@@ -335,7 +335,7 @@ def getStudentAnsweredQuiz(database: core, userid, quizID):
 def StudentGetAllAnsweredQuiz(database: core, userid):
     getAllAnsweredQuiz(database, userid)
     input("Press any key to go back...")
-    student_dashboard(database, userid)
+    dashboard.student_dashboard(database, userid)
 
 def StudentViewAnsweredQuiz(database: core, userid):
     quiz_id, data = checkQuizIdValid(database)
@@ -343,7 +343,7 @@ def StudentViewAnsweredQuiz(database: core, userid):
         getStudentAnsweredQuiz(database, userid, quiz_id)
         listLeaderboard(database)
     input("Press any key to go back...")
-    student_dashboard(database, userid)
+    dashboard.student_dashboard(database, userid)
 
 def isStudentAnswered(database: core, userid, quiz_id):
     try:

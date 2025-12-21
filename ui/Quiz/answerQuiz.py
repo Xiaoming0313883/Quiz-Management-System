@@ -4,7 +4,7 @@ import asset.useful
 from asset.useful import clear_console
 from database.core import core
 from database.manager import quizManager, userManager
-from ui.dashboard import  student_dashboard
+import ui.dashboard as dashboard
 
 def answerQuiz(database: core, user_id):
     clear_console()
@@ -69,4 +69,4 @@ def answerQuiz(database: core, user_id):
         else:
             print("Quiz could not saved! Please try answer again")
     input("Press any key to go back...")
-    student_dashboard(database, user_id)
+    dashboard.student_dashboard(database, user_id)
