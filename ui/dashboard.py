@@ -11,7 +11,6 @@ def dashboard(database: core,data):
     userid = data[0][0]
     fullname = data[0][1]
     role = data[0][2]
-    print(f"Welcome {fullname}!")
     if role == userManager.Role.teacher.value:
         teacher_dashboard(database, userid)
     elif role == userManager.Role.student.value:
@@ -25,6 +24,9 @@ def determineDashboard(database: core, userid):
         student_dashboard(database, userid)
 
 def teacher_dashboard(database: core,userid):
+    clear_console()
+    status, full_name = userManager.getUsernameByID(database, userid)
+    print(f"Welcome {full_name}!")
     options = ["Create a quiz","Manage quiz","Create an account","View all users","Delete a user"]
     print("------------------Dashboard------------------")
     print("Welcome to the Teacher Dashboard")
@@ -61,6 +63,9 @@ def teacher_dashboard(database: core,userid):
             manageStudent.deleteUser(database, userid)
 
 def student_dashboard(database: core, userid):
+    clear_console()
+    status, full_name = userManager.getUsernameByID(database, userid)
+    print(f"Welcome {full_name}!")
     options = ["Answer a quiz", "View all answered quiz", "View answered quiz information"]
     print("------------------Dashboard------------------")
     print("Welcome to the Student Dashboard")
@@ -85,7 +90,7 @@ def student_dashboard(database: core, userid):
             answerQuiz.answerQuiz(database, userid)
         case 2:
             # view all answered quiz
-            quizManager.StudentGetAllAnsweredQuiz(database, userid)
+            quizManager.UserGetAllAnsweredQuiz(database, userid)
         case 3:
             # view answered quiz
-            quizManager.StudentViewAnsweredQuiz(database, userid)
+            quizManager.UserViewAnsweredQuiz(database, userid)

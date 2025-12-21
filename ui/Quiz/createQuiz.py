@@ -1,8 +1,10 @@
+from asset.useful import clear_console
 from database.core import core
 from database.manager.quizManager import createQuiz
 import ui.dashboard as dashboard
 
 def create_quiz(database: core,user_id):
+    clear_console()
     while True:
         count = input("How many questions do you want?: ")
         if not count.isdigit():

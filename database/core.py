@@ -78,7 +78,7 @@ class core:
                 CREATE TABLE attempts (
                     attempt_id INT AUTO_INCREMENT PRIMARY KEY,
                     quiz_id INT NOT NULL,
-                    student_id INT NOT NULL,
+                    user_id INT NOT NULL,
                     start_time DATETIME NOT NULL,
                     end_time DATETIME,
                     time_used FLOAT COMMENT 'Time used in seconds',
