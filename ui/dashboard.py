@@ -8,9 +8,9 @@ from ui.manageStudent import manageStudent
 
 def dashboard(database: core,data):
     clear_console()
-    userid = data[0][0]
-    fullname = data[0][1]
-    role = data[0][2]
+    userid = data[0]
+    fullname = data[1]
+    role = data[2]
     if role == userManager.Role.teacher.value:
         teacher_dashboard(database, userid)
     elif role == userManager.Role.student.value:

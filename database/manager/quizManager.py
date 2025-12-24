@@ -105,7 +105,7 @@ def viewQuiz(database: core,userid):
             if user_id:
                 status, attempt_id = getUserAnsweredQuiz(database, user_id, quiz_id)
                 if status:
-                    displayUserAnsweredQuiz(database, user_id, quiz_id)
+                    displayUserAnsweredQuiz(database, user_id, attempt_id)
                 else:
                     print("The user didn't answer this quiz yet!")
             else:

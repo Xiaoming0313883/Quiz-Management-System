@@ -60,7 +60,7 @@ def verify_user(dbase: core.core, username, password):
     cursor = dbase.db_connection.cursor()
     try:
         cursor.execute("SELECT user_id,full_name,role FROM quiz.users WHERE username = '%s' AND password_hash = '%s'" % (username, hash_password(password),))
-        data = cursor.fetchall()
+        data = cursor.fetchone()
         if data:
             return True,data
         else:
