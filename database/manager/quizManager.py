@@ -59,7 +59,7 @@ def checkQuizIdValid(database: core):
             elif not quiz_id.isdigit():
                 print("Please enter a valid quiz ID (number), enter exit to exit")
                 continue
-            cursor.execute(f"SELECT title, description, created_by, status, created_at FROM quiz.quizzes WHERE quiz_id = {quiz_id}")
+            cursor.execute(f"SELECT title, description, created_by, status, created_at FROM quiz.quizzes WHERE quiz_id = '%s'" % (quiz_id,))
             data = cursor.fetchone()
             if not data:
                 print("No quiz with that ID, please try again! Type exit to exit")
@@ -97,7 +97,7 @@ def viewQuiz(database: core,userid):
     quiz_id, data = checkQuizIdValid(database)
     if quiz_id:
         displayQuizInfo(database, quiz_id,data)
-        listLeaderboard(database)
+        listLeaderboard(database, quiz_id)
         viewStudent = input("Did you want to view student's answer? (y/n): ")
         if viewStudent.lower() == "y":
             username = input("Enter student username: ")
@@ -113,10 +113,10 @@ def viewQuiz(database: core,userid):
         input("Press any key to go back...")
     dashboard.teacher_dashboard(database, userid)
 
-def listLeaderboard(database: core):
+def listLeaderboard(database: core, quiz_id):
     try:
         cursor = database.db_connection.cursor()
-        cursor.execute(f"SELECT u.full_name, u.username, a.start_time, a.end_time, a.time_used, a.score FROM quiz.users u INNER JOIN quiz.attempts a WHERE a.user_id = u.user_id ORDER BY a.start_time DESC;")
+        cursor.execute(f"SELECT u.full_name, u.username, a.start_time, a.end_time, a.time_used, a.score FROM quiz.users u INNER JOIN quiz.attempts a ON a.user_id = u.user_id WHERE a.quiz_id = '%s' ORDER BY a.start_time DESC" % (quiz_id,))
         data = cursor.fetchall()
         header = ["Full Name", "Username", "Start Time", "End Time", "Time Used", "Score"]
         print("Leaderboard:")
@@ -369,7 +369,7 @@ def UserViewAnsweredQuiz(database: core, userid):
         status, attempt_id = getUserAnsweredQuiz(database, userid, quiz_id)
         if status:
             displayUserAnsweredQuiz(database, userid, attempt_id)
-            listLeaderboard(database)
+            listLeaderboard(database, quiz_id)
         else:
             print("You didn't answer this quiz yet!")
     input("Press any key to go back...")
