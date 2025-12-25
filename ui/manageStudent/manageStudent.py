@@ -80,12 +80,12 @@ def viewAllUsers(database: core, userid):
         data = cursor.fetchall()
         datas = []
         for i in data:
-            userid = i[0]
+            userID = i[0]
             username = i[1]
             fullname = i[3]
             role = i[4]
             createTime = i[5]
-            datas.append([userid, username, fullname, role, createTime])
+            datas.append([userID, username, fullname, role, createTime])
         header = ["User ID", "Username", "Full Name", "Role", "Create Time"]
         print("\nAll user list:")
         print(tabulate(datas, headers=header, tablefmt="grid"))
