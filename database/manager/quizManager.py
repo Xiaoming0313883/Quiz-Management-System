@@ -303,22 +303,25 @@ def displayUserAnsweredQuiz(database: core, userid,attempt_id):
     header = ["Title", "Created By", "Start Time", "End Time", "Time Used (s)", "Score"]
     print(tabulate([data], headers=header, tablefmt="grid"), "\n")
 
-    cursor.execute(f"""
+    cursor.execute("""
         SELECT
-            q.question_no,
-            q.question_text,
-            q.option_a,
-            q.option_b,
-            q.option_c,
-            q.option_d,
-            q.correct_option,
-            ans.selected_option,
-            ans.is_correct
-        FROM answers ans
-        JOIN questions q ON ans.question_id = q.question_no
-        WHERE ans.attempt_id = '{attempt_id}'
+        q.question_no,
+        q.question_text,
+        q.option_a,
+        q.option_b,
+        q.option_c,
+        q.option_d,
+        q.correct_option,
+        ans.selected_option,
+        ans.is_correct
+        FROM quiz.answers ans
+        JOIN quiz.questions q
+            ON ans.question_id = q.question_no
+           AND ans.quiz_id = q.quiz_id
+        WHERE ans.attempt_id = '%s'
         ORDER BY q.question_no;
-    """)
+
+    """ % (attempt_id,))
     data = cursor.fetchall()
     datas = []
     for row in data:
