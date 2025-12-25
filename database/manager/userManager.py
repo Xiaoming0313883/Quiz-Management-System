@@ -35,7 +35,7 @@ def create_user(dbase: core.core, username, password, full_name, role: Role):
 def getUserRole(dbase: core.core, user_id: int):
     try:
         cursor = dbase.db_connection.cursor()
-        cursor.execute(f"SELECT role FROM quiz.users WHERE user_id = {user_id}")
+        cursor.execute("SELECT role FROM quiz.users WHERE user_id = '%s'" % (user_id,))
         role = cursor.fetchone()
         if role:
             return role
@@ -48,7 +48,7 @@ def getUserRole(dbase: core.core, user_id: int):
 def getUseridByUsername(dbase: core.core, username):
     try:
         cursor = dbase.db_connection.cursor()
-        cursor.execute(f"SELECT user_id FROM quiz.users WHERE username = '%s'" % (username,))
+        cursor.execute("SELECT user_id FROM quiz.users WHERE username = '%s'" % (username,))
         data = cursor.fetchone()
         if data:
             return data[0]
@@ -72,7 +72,7 @@ def verify_user(dbase: core.core, username, password):
 def getUsernameByID(dbase: core.core, user_id: int):
     cursor = dbase.db_connection.cursor()
     try:
-        cursor.execute(f"SELECT full_name FROM quiz.users WHERE user_id = {user_id}")
+        cursor.execute("SELECT full_name FROM quiz.users WHERE user_id = '%s'" % (user_id,))
         data = cursor.fetchall()
         if data:
             return True, data[0][0]

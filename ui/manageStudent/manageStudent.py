@@ -33,7 +33,7 @@ def createUser(database: core, userid):
     else:
         try:
             cursor = database.db_connection.cursor()
-            cursor.execute(f"SELECT * FROM quiz.users WHERE username='{username}'")
+            cursor.execute("SELECT * FROM quiz.users WHERE username='%s'" % (username,))
             data = cursor.fetchone()
             if data is None:
                 cursor.execute(f"INSERT INTO quiz.users (username,password_hash,full_name, role) VALUES ("
@@ -54,7 +54,7 @@ def deleteUser(database: core, userid):
     username = input("Please enter user's username: ")
     try:
         cursor = database.db_connection.cursor()
-        cursor.execute(f"SELECT full_name FROM quiz.users WHERE username='{username}'")
+        cursor.execute("SELECT full_name FROM quiz.users WHERE username='%s'" % (username,))
         data = cursor.fetchone()
         if data:
             confirm = input(f"Are you sure you want to delete {data[0]}? (y/n): ")
@@ -76,7 +76,7 @@ def viewAllUsers(database: core, userid):
     clear_console()
     cursor = database.db_connection.cursor()
     try:
-        cursor.execute(f"SELECT * FROM quiz.users;")
+        cursor.execute("SELECT * FROM quiz.users;")
         data = cursor.fetchall()
         datas = []
         for i in data:

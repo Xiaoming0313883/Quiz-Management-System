@@ -59,7 +59,7 @@ def checkQuizIdValid(database: core):
             elif not quiz_id.isdigit():
                 print("Please enter a valid quiz ID (number), enter exit to exit")
                 continue
-            cursor.execute(f"SELECT title, description, created_by, status, created_at FROM quiz.quizzes WHERE quiz_id = '%s'" % (quiz_id,))
+            cursor.execute("SELECT title, description, created_by, status, created_at FROM quiz.quizzes WHERE quiz_id = '%s'" % (quiz_id,))
             data = cursor.fetchone()
             if not data:
                 print("No quiz with that ID, please try again! Type exit to exit")
@@ -116,7 +116,7 @@ def viewQuiz(database: core,userid):
 def listLeaderboard(database: core, quiz_id):
     try:
         cursor = database.db_connection.cursor()
-        cursor.execute(f"SELECT u.full_name, u.username, a.start_time, a.end_time, a.time_used, a.score FROM quiz.users u INNER JOIN quiz.attempts a ON a.user_id = u.user_id WHERE a.quiz_id = '%s' ORDER BY a.start_time DESC" % (quiz_id,))
+        cursor.execute("SELECT u.full_name, u.username, a.start_time, a.end_time, a.time_used, a.score FROM quiz.users u INNER JOIN quiz.attempts a ON a.user_id = u.user_id WHERE a.quiz_id = '%s' ORDER BY a.start_time DESC" % (quiz_id,))
         data = cursor.fetchall()
         header = ["Full Name", "Username", "Start Time", "End Time", "Time Used", "Score"]
         print("Leaderboard:")
@@ -193,7 +193,7 @@ def setQuizStatus(database: core,userid):
 def getQuiz(database: core,quizID):
     try:
         cursor = database.db_connection.cursor()
-        cursor.execute(f"SELECT * FROM quiz.questions WHERE quiz_id = {quizID}")
+        cursor.execute("SELECT * FROM quiz.questions WHERE quiz_id = '%s'" % (quizID,))
         data = cursor.fetchall()
         datas = []
         for i in data:
@@ -255,7 +255,7 @@ def getAllAnsweredQuiz(database: core, userid):
     clear_console()
     try:
         cursor = database.db_connection.cursor()
-        cursor.execute(f"""SELECT
+        cursor.execute("""SELECT
             q.quiz_id,
             q.title,
             u.full_name,
@@ -266,9 +266,9 @@ def getAllAnsweredQuiz(database: core, userid):
             FROM attempts a
             JOIN quizzes q ON a.quiz_id = q.quiz_id
             JOIN users u ON q.created_by = u.user_id
-            WHERE a.user_id = '{userid}'
+            WHERE a.user_id = '%s'
             ORDER BY a.start_time DESC;
-        """)
+        """ % (userid,))
         data = cursor.fetchall()
         header = ["Quiz ID", "Quiz Title", "Created By" ,"Start Time", "End Time", "Time Used", "Score"]
         print("Answered Quiz:")
@@ -279,7 +279,7 @@ def getAllAnsweredQuiz(database: core, userid):
 
 def displayUserAnsweredQuiz(database: core, userid,attempt_id):
     cursor = database.db_connection.cursor()
-    cursor.execute(f"""
+    cursor.execute("""
         SELECT
             q.title,
             u.full_name,
@@ -290,8 +290,8 @@ def displayUserAnsweredQuiz(database: core, userid,attempt_id):
         FROM attempts a
         JOIN quizzes q ON a.quiz_id = q.quiz_id
         JOIN users u ON q.created_by = u.user_id
-        WHERE a.attempt_id = '{attempt_id}';
-    """)
+        WHERE a.attempt_id = '%s';
+    """ % (attempt_id,))
     data = list(cursor.fetchone())
     data[2] = data[2].strftime("%Y-%m-%d %H:%M:%S")
     data[3] = data[3].strftime("%Y-%m-%d %H:%M:%S")
@@ -344,13 +344,13 @@ def getUserAnsweredQuiz(database: core, userid, quizID):
     clear_console()
     try:
         cursor = database.db_connection.cursor()
-        cursor.execute(f"""SELECT attempt_id
+        cursor.execute("""SELECT attempt_id
             FROM quiz.attempts
-            WHERE user_id = '{userid}'
-              AND quiz_id = '{quizID}'
+            WHERE user_id = '%s'
+              AND quiz_id = '%s'
             ORDER BY start_time DESC
             LIMIT 1;
-        """)
+        """ % (userid, quizID,))
         data = cursor.fetchone()
         if data:
             attempt_id = data[0]
@@ -381,13 +381,13 @@ def UserViewAnsweredQuiz(database: core, userid):
 def isUserAnswered(database: core, userid, quiz_id):
     try:
         cursor = database.db_connection.cursor()
-        cursor.execute(f"""SELECT attempt_id
+        cursor.execute("""SELECT attempt_id
             FROM quiz.attempts
-            WHERE user_id = '{userid}'
-              AND quiz_id = '{quiz_id}'
+            WHERE user_id = '%s'
+              AND quiz_id = '%s'
             ORDER BY start_time DESC
             LIMIT 1;
-        """)
+        """ % (userid, quiz_id, ))
         data = cursor.fetchone()
         if data:
             return True
@@ -398,7 +398,7 @@ def isUserAnswered(database: core, userid, quiz_id):
 def isQuizActive(database: core, quiz_id):
     try:
         cursor = database.db_connection.cursor()
-        cursor.execute(f"""SELECT status FROM quiz.quizzes WHERE quiz_id = '{quiz_id}'""")
+        cursor.execute("SELECT status FROM quiz.quizzes WHERE quiz_id = '%s'" % (quiz_id,))
         data = cursor.fetchone()
         if data[0] == "active":
             return True
